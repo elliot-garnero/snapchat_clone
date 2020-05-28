@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, FlatList, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+
 export default class UserList extends React.Component {
 
     state = {
@@ -22,13 +23,25 @@ export default class UserList extends React.Component {
         })
     }
 
+    onPress = (email) => {
+        //get picture
+        //send it to email account (need to get token)
+        console.log(email);
+    }
+
     render() {
         const {nameList} = this.state;
-
         return (
             <View>
-                { 
-                nameList.map(user => <Text style={styles.user}>{user.email}</Text>)
+                {
+                nameList.map(user =>
+                <TouchableOpacity
+                    style={[styles.user]}
+                    onPress={() => this.onPress(user.email)}
+                    onPress={this.backgroundColor = "#F8F8F8"}
+                    >
+                    <Text>{user.email}</Text>
+                </TouchableOpacity>)
                 }
             </View>
         )
@@ -48,5 +61,4 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold"
     }
-  });
-  
+});
