@@ -1,17 +1,23 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Button } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class UserList extends React.Component {
 
     state = {
-    nameList: []
+        nameList: [],
+        btnVisible: false,
+        token: "BRHtEJPd3N3Za3VMDmCDEPST",
+        duration: 5,
+        email: '',
+        image: '',
     }
 
     componentDidMount() {
         axios.get('http://snapi.epitech.eu/all', {
             headers: {
-                "token": "BRHtEJPd3N3Za3VMDmCDEPST"
+                "token": this.state.token
             }
         })
         .then(res => {
@@ -23,24 +29,61 @@ export default class UserList extends React.Component {
         })
     }
 
-    onPress = (email) => {
-        //get picture
-        //send it to email account (need to get token)
-        console.log(email);
+    onPress = (userMail) => {
+        this.state.email = userMail;
+        this.setState({
+            btnVisible: !this.state.btnVisible,
+        });
+
+        const value = AsyncStorage.getItem('image');
+        value.then((res) => {
+            this.state.image = res;
+        })
+    }
+
+    sendSnap = () => {
+        console.log(this.state);
+        const imgFormData = new FormData();
+        imgFormData.set("duration", this.state.duration);
+        imgFormData.set("to", this.state.email);
+        imgFormData.append("image", this.state.image);
+
+        axios.post('http://snapi.epitech.eu/snap', {
+            headers: {
+                "token": this.state.token
+            },
+            body: imgFormData,
+        })
+        .then((res) => {
+            console.log(res)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
     }
 
     render() {
         const {nameList} = this.state;
         return (
             <View>
+                <View style={styles.sendButton}>
+                    {this.state.btnVisible?
+                    <>
+                    <Button
+                    title="Send"
+                    onPress={() => this.sendSnap()}
+                    />
+                    <Text>Send snap to {this.state.email}</Text>
+                    </>
+                    :null}
+                </View>
                 {
                 nameList.map(user =>
                 <TouchableOpacity
                     style={[styles.user]}
                     onPress={() => this.onPress(user.email)}
-                    onPress={this.backgroundColor = "#F8F8F8"}
                     >
-                    <Text>{user.email}</Text>
+                    <Text style={[styles.userText]}>{user.email}</Text>
                 </TouchableOpacity>)
                 }
             </View>
@@ -56,9 +99,12 @@ const styles = StyleSheet.create({
         borderColor: "#20232a",
         borderRadius: 6,
         backgroundColor: "#FFFFFF",
-        color: "#20232a",
+    },
+    userText: {
         textAlign: "center",
-        fontSize: 20,
         fontWeight: "bold"
+    },
+    sendButton: {
+        marginTop: 16
     }
 });

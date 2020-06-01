@@ -3,6 +3,7 @@ import { Button, Image, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class ImagePickerExample extends React.Component {
   state = {
@@ -43,11 +44,19 @@ export default class ImagePickerExample extends React.Component {
       });
       if (!result.cancelled) {
         this.setState({ image: result.uri });
+        this.storeData(result.uri);
       }
-
-      console.log(result);
+      //console.log(result.uri); // CLG the image URI
     } catch (E) {
       console.log(E);
     }
   };
+
+  storeData = async (value) => {
+    try {
+      await AsyncStorage.setItem('image', value)
+    } catch (e) {
+      console.log(e)
+    }
+  }
 }
